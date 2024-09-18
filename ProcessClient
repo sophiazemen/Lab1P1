@@ -1,0 +1,22 @@
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+public class ProcessClient {
+    public static void main(String[] args) {
+        try {
+            // Locate the registry and lookup the processes by their IDs
+            Registry registry = LocateRegistry.getRegistry();
+            ProcessRMI process1 = (ProcessRMI) registry.lookup("Process1");
+            ProcessRMI process2 = (ProcessRMI) registry.lookup("Process2");
+
+            // Simulate Process 1 sending a message to Process 2
+            process1.sendEvent("Hello from Process 1", process2);
+
+            // Simulate Process 2 sending a message to Process 1
+            process2.sendEvent("Hello from Process 2", process1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

@@ -1,0 +1,22 @@
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+
+public class ProcessServer {
+    public static void main(String[] args) {
+        try {
+            // Create and export process objects
+            ProcessRMI process1 = new ProcessImpl(0);
+            ProcessRMI process2 = new ProcessImpl(1);
+
+            // Bind processes to the registry
+            Registry registry = LocateRegistry.createRegistry(1099);
+            registry.rebind("Process1", process1);
+            registry.rebind("Process2", process2);
+
+            System.out.println("Processes registered and running...");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

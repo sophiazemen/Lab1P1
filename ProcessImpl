@@ -1,0 +1,33 @@
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+public class ProcessImpl extends UnicastRemoteObject implements ProcessRMI {
+    private int processID;
+    private int clock;
+
+    public ProcessImpl(int processID) throws RemoteException {
+        this.processID = processID;
+        this.clock = 0;  // Initialize scalar clock to 0
+    }
+
+    // When receiving a message from another process
+    @Override
+    public void sendMessage(int timestamp, String message, int senderID) throws RemoteException {
+        System.out.println("Process " + senderID + " sent: " + message);
+        
+        // Update the clock with the maximum of its own and the sender's timestamp
+        clock = Math.max(clock, timestamp) + 1;
+        System.out.println("Updated clock: " + clock);
+    }
+
+    // Simulate sending a message to another process
+    public void sendEvent(String message, ProcessRMI receiver) throws RemoteException {
+        clock++;  // Increment the local clock before sending
+        System.out.println("Process " + processID + " sending: " + message + " with clock: " + clock);
+        receiver.sendMessage(clock, message, processID);
+    }
+
+    public int getClock() {
+        return clock;
+    }
+}
