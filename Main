@@ -1,0 +1,34 @@
+import java.rmi.Naming;
+import java.rmi.registry.LocateRegistry;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Start RMI registry
+            LocateRegistry.createRegistry(1099);
+
+            // Create vector clocks for each process (assuming 3 processes)
+            VectorClock vectorClock1 = new VectorClock(3);
+            VectorClock vectorClock2 = new VectorClock(3);
+            VectorClock vectorClock3 = new VectorClock(3);
+
+            // Create and bind processes
+            RemoteProcessImpl process1 = new RemoteProcessImpl(0, vectorClock1);
+            Naming.rebind("//localhost/Process1", process1);
+
+            RemoteProcessImpl process2 = new RemoteProcessImpl(1, vectorClock2);
+            Naming.rebind("//localhost/Process2", process2);
+
+            RemoteProcessImpl process3 = new RemoteProcessImpl(2, vectorClock3);
+            Naming.rebind("//localhost/Process3", process3);
+
+            System.out.println("Processes are ready.");
+
+            // Example usage (process1 sends a message to process2)
+            process1.sendEvent(1, "Hello from Process 1");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
