@@ -1,8 +1,29 @@
-import java.rmi.Remote;
-import java.rmi.RemoteException;
+import java.io.Serializable;
+import java.util.Arrays;
 
-public interface VectorClock extends Remote {
-    int[] getClock() throws RemoteException;
-    void increment(int processId) throws RemoteException;
-    void update(int[] remoteClock) throws RemoteException;
+public class VectorClock implements Serializable {
+    private int[] clock;
+
+    public VectorClock(int size) {
+        clock = new int[size]; // Initialize clock to all zeroes
+    }
+
+    public synchronized void increment(int processId) {
+        clock[processId]++;
+    }
+
+    public synchronized int[] getClock() {
+        return clock.clone(); // Return a copy of the clock
+    }
+
+    public synchronized void update(int[] receivedClock) {
+        for (int i = 0; i < clock.length; i++) {
+            clock[i] = Math.max(clock[i], receivedClock[i]);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(clock);
+    }
 }
