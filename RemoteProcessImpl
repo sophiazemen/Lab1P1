@@ -1,0 +1,32 @@
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
+public class RemoteProcessImpl extends UnicastRemoteObject implements RemoteProcess {
+    private VectorClock vectorClock;
+    private int processId;
+
+    public RemoteProcessImpl(int processId, VectorClock vectorClock) throws RemoteException {
+        this.vectorClock = vectorClock;
+        this.processId = processId;
+    }
+
+    @Override
+    public int[] getVectorClock() {
+        return vectorClock.getClock();
+    }
+
+    @Override
+    public void sendEvent(int processId, String message) throws RemoteException {
+        vectorClock.increment(this.processId);
+        System.out.println("Process " + this.processId + " sending message: " + message);
+        System.out.println("Updated vector clock: " + displayClock(vectorClock.getClock()));
+    }
+
+    private String displayClock(int[] clock) {
+        StringBuilder sb = new StringBuilder();
+        for (int value : clock) {
+            sb.append(value).append(" ");
+        }
+        return sb.toString();
+    }
+}
