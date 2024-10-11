@@ -1,3 +1,4 @@
+import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -11,14 +12,36 @@ public class RemoteProcessImpl extends UnicastRemoteObject implements RemoteProc
     }
 
     @Override
-    public int[] getVectorClock() {
+    public int[] getVectorClock() throws RemoteException {
         return vectorClock.getClock();
     }
 
     @Override
-    public void sendEvent(int processId, String message) throws RemoteException {
+    public void sendEvent(int targetProcessId, String message) throws RemoteException {
+        // Increment local clock
         vectorClock.increment(this.processId);
-        System.out.println("Process " + this.processId + " sending message: " + message);
+
+        try {
+            // Lookup the target process using RMI
+            RemoteProcess targetProcess = (RemoteProcess) Naming.lookup("//localhost/Process" + targetProcessId);
+
+            // Send the message and current vector clock to the target process
+            targetProcess.receiveMessage(this.processId, message, vectorClock.getClock());
+
+            System.out.println("Process " + this.processId + " sent message to Process " + targetProcessId + ": " + message);
+            System.out.println("Updated vector clock: " + displayClock(vectorClock.getClock()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void receiveMessage(int senderId, String message, int[] receivedClock) throws RemoteException {
+        // Update local clock
+        vectorClock.update(receivedClock);
+        vectorClock.increment(this.processId); // Increment after receiving
+
+        System.out.println("Process " + this.processId + " received message from Process " + senderId + ": " + message);
         System.out.println("Updated vector clock: " + displayClock(vectorClock.getClock()));
     }
 
