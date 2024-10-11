@@ -1,7 +1,10 @@
+package lamport;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface RemoteProcess extends Remote {
     int[] getVectorClock() throws RemoteException;
     void sendEvent(int processId, String message) throws RemoteException;
+    void receiveMessage(int senderId, String message, int[] clock) throws RemoteException;
 }
